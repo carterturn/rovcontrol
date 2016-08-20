@@ -105,7 +105,7 @@ void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods){
 		break;
 	case GLFW_KEY_KP_7:
 	case GLFW_KEY_W:
-		if(action == GLFW_PRESS) message(LEFT_MOTOR, BACK_CMD);
+		if(action == GLFW_PRESS) message(LEFT_MOTOR, FORWARD_CMD);
 		break;
 	case GLFW_KEY_KP_2:
 	case GLFW_KEY_C:
