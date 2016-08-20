@@ -20,7 +20,7 @@ using namespace std;
 
 futuregl gui(3);
 bool quit;
-ctclient socket;
+string ip;
 
 void draw(string onscreen_message){
 	gui.draw();
@@ -78,10 +78,14 @@ void message(int motor, int command){
 		return;
 	}
 
+	ctclient socket;
+	socket.create(ip, 7276);
 	socket.c_write(message);
 
 	string response = socket.c_read();
 	response = message;
+
+	socket.c_close();
 		
 	cout << response << "\n";
 }
@@ -191,13 +195,7 @@ void mouse(GLFWwindow * window, int button, int state, int mods) {
 	}
 }
 
-int init(){
-
-}
-
 int main(int argc, char* argv[]){
-
-	string ip = "";
 	if(argc < 2){
 		ip = "127.0.0.1";
 	}
@@ -212,8 +210,6 @@ int main(int argc, char* argv[]){
 		cout << "Window Creation Error\n";
 		return -1;
 	}
-
-	socket.create(ip, 7276);
 
 	glfwMakeContextCurrent(window);
 	glfwSetMouseButtonCallback(window, mouse);
@@ -235,8 +231,6 @@ int main(int argc, char* argv[]){
 		delay.tv_nsec = 500000;
 		nanosleep(&delay, NULL);
 	}
-
-	socket.c_close();
 
 	glfwTerminate();
 	return 0;
