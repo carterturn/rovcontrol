@@ -1,15 +1,14 @@
 #include <iostream>
-#include <clientsocket.h>
-#include <futuregl.h>
-#include <lgl_utils.h>
+#include <ctclient.h>
+#include <futuregl/futuregl.h>
+#include <futuregl/lgl_utils.h>
 #include <time.h>
 #include <GLFW/glfw3.h>
-#include <GL/gl.h>
 
 using namespace std;
 
-#define WIN_Y 264
-#define WIN_X 640
+#define window_y 264
+#define window_x 640
 
 #define LEFT_MOTOR 0
 #define Z_MOTOR 1
@@ -21,13 +20,12 @@ using namespace std;
 
 futuregl gui(3);
 bool quit;
-string response;
-//clientsocket socket;
+ctclient socket;
 
-void draw(){
+void draw(string onscreen_message){
 	gui.draw();
 		
-	lgl_utils::draw_text(98, 126, 18, response, 6);
+	lgl_utils::draw_text(98, 126, 18, onscreen_message, 6);
 }
 
 void guiInit(){
@@ -80,9 +78,9 @@ void message(int motor, int command){
 		return;
 	}
 
-//		socket.write(message);
+	socket.c_write(message);
 
-//		string response = socket.read();
+	string response = socket.c_read();
 	response = message;
 		
 	cout << response << "\n";
@@ -148,7 +146,7 @@ void mouse(GLFWwindow * window, int button, int state, int mods) {
 			double Mx, My;
 			glfwGetCursorPos(window, &Mx, &My);
 
-			My = WIN_Y - My;
+			My = window_y - My;
 			string button = gui.getclicked(Mx, My);
 
 			if(button != "") cout << button << "\n";
@@ -193,6 +191,10 @@ void mouse(GLFWwindow * window, int button, int state, int mods) {
 	}
 }
 
+int init(){
+
+}
+
 int main(int argc, char* argv[]){
 
 	string ip = "";
@@ -203,28 +205,29 @@ int main(int argc, char* argv[]){
 		ip = argv[1];
 	}
 
-	response = "TERCA ROV SYSTEM V0.2";
-		
 	glfwInit();
-	GLFWwindow * window = glfwCreateWindow(WIN_X, WIN_Y, "ROV CONTROL", NULL, NULL);
+	GLFWwindow * window = glfwCreateWindow(window_x, window_y, "ROV CONTROL", NULL, NULL);
+
 	if(!window){
 		cout << "Window Creation Error\n";
 		return -1;
 	}
 
-//		socket.create(ip, 7276);
+	socket.create(ip, 7276);
 
 	glfwMakeContextCurrent(window);
 	glfwSetMouseButtonCallback(window, mouse);
 	glfwSetKeyCallback(window, keyboard);
 
-	glOrtho(0, WIN_X, 0, WIN_Y, -1.0, 1.0);
+	glOrtho(0, window_x, 0, window_y, -1.0, 1.0);
 	guiInit();
+
+	string onscreen_message = "TERCA ROV SYSTEM V0.2";
 
 	quit = false;
 	while(!quit){
 		glClear(GL_COLOR_BUFFER_BIT);
-		draw();
+		draw(onscreen_message);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		timespec delay;
@@ -233,7 +236,7 @@ int main(int argc, char* argv[]){
 		nanosleep(&delay, NULL);
 	}
 
-//		socket.c_close();
+	socket.c_close();
 
 	glfwTerminate();
 	return 0;
