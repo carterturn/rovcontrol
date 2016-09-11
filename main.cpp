@@ -109,62 +109,39 @@ void message(int motor, int command){
 }
 
 void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods){
-	switch(key){
-	case GLFW_KEY_Q:
-		if((mods & GLFW_MOD_CONTROL) == 2) quit = true;
-		break;
-	case GLFW_KEY_KP_1:
-	case GLFW_KEY_X:
-		if(action == GLFW_PRESS) message(LEFT_MOTOR, BACK_CMD);
-		break;
-	case GLFW_KEY_KP_4:
-	case GLFW_KEY_S:
-		if(action == GLFW_PRESS) message(LEFT_MOTOR, STOP_CMD);
-		break;
-	case GLFW_KEY_KP_7:
-	case GLFW_KEY_W:
-		if(action == GLFW_PRESS) message(LEFT_MOTOR, FORWARD_CMD);
-		break;
-	case GLFW_KEY_KP_2:
-	case GLFW_KEY_C:
-		if(action == GLFW_PRESS) message(Z_MOTOR, BACK_CMD);
-		break;
-	case GLFW_KEY_KP_5:
-	case GLFW_KEY_D:
-		if(action == GLFW_PRESS) message(Z_MOTOR, STOP_CMD);
-		break;
-	case GLFW_KEY_KP_8:
-	case GLFW_KEY_E:
-		if(action == GLFW_PRESS) message(Z_MOTOR, FORWARD_CMD);
-		break;
-	case GLFW_KEY_KP_3:
-	case GLFW_KEY_V:
-		if(action == GLFW_PRESS) message(RIGHT_MOTOR, BACK_CMD);
-		break;
-	case GLFW_KEY_KP_6:
-	case GLFW_KEY_F:
-		if(action == GLFW_PRESS) message(RIGHT_MOTOR, STOP_CMD);
-		break;
-	case GLFW_KEY_KP_9:
-	case GLFW_KEY_R:
-		if(action == GLFW_PRESS) message(RIGHT_MOTOR, FORWARD_CMD);
-		break;
-	case GLFW_KEY_KP_ADD:
-	case GLFW_KEY_A:
-		if(action == GLFW_PRESS){
-			message(LEFT_MOTOR, STOP_CMD);
-			message(Z_MOTOR, STOP_CMD);
-			message(RIGHT_MOTOR, STOP_CMD);
-		}
-		break;
-	default:
-		break;
-	}
+	if(key == GLFW_KEY_Q && (mods & GLFW_MOD_CONTROL) == 2) quit = true;
 }
 
-void mouse(GLFWwindow * window, int button, int state, int mods) {
-	if(state == GLFW_PRESS){
-		if(button == GLFW_MOUSE_BUTTON_LEFT){
+int main(int argc, char* argv[]){
+	if(argc < 2){
+		ip = "127.0.0.1";
+	}
+	else {
+		ip = argv[1];
+	}
+
+	glfwInit();
+	GLFWwindow * window = glfwCreateWindow(window_x, window_y, "ROV CONTROL", NULL, NULL);
+
+	if(!window){
+		cout << "Window Creation Error\n";
+		return -1;
+	}
+
+	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, keyboard);
+
+	glOrtho(0, window_x, 0, window_y, -1.0, 1.0);
+	guiInit();
+
+	string onscreen_message = "TERCA ROV SYSTEM V0.2";
+
+	quit = false;
+	while(!quit){
+		glClear(GL_COLOR_BUFFER_BIT);
+		draw(onscreen_message);
+
+		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
 			double Mx, My;
 			glfwGetCursorPos(window, &Mx, &My);
 
@@ -208,40 +185,51 @@ void mouse(GLFWwindow * window, int button, int state, int mods) {
 				message(Z_MOTOR, STOP_CMD);
 				message(RIGHT_MOTOR, STOP_CMD);
 			}
-								
 		}
-	}
-}
 
-int main(int argc, char* argv[]){
-	if(argc < 2){
-		ip = "127.0.0.1";
-	}
-	else {
-		ip = argv[1];
-	}
-
-	glfwInit();
-	GLFWwindow * window = glfwCreateWindow(window_x, window_y, "ROV CONTROL", NULL, NULL);
-
-	if(!window){
-		cout << "Window Creation Error\n";
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetMouseButtonCallback(window, mouse);
-	glfwSetKeyCallback(window, keyboard);
-
-	glOrtho(0, window_x, 0, window_y, -1.0, 1.0);
-	guiInit();
-
-	string onscreen_message = "TERCA ROV SYSTEM V0.2";
-
-	quit = false;
-	while(!quit){
-		glClear(GL_COLOR_BUFFER_BIT);
-		draw(onscreen_message);
+		if(glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
+			message(LEFT_MOTOR, BACK_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+			message(LEFT_MOTOR, STOP_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_7) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+			message(LEFT_MOTOR, FORWARD_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS){
+			message(Z_MOTOR, BACK_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+			message(Z_MOTOR, STOP_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
+			message(Z_MOTOR, FORWARD_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_3) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS){
+			message(RIGHT_MOTOR, BACK_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+			message(RIGHT_MOTOR, STOP_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_9) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+			message(RIGHT_MOTOR, FORWARD_CMD);
+		}
+		if(glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS
+		   || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+			message(LEFT_MOTOR, STOP_CMD);
+			message(Z_MOTOR, STOP_CMD);
+			message(RIGHT_MOTOR, STOP_CMD);
+		}
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		timespec delay;
